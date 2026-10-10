@@ -1,3 +1,4 @@
+```python
 import streamlit as st
 import cv2
 import numpy as np
@@ -47,6 +48,7 @@ if video:
                 step = max(1, total // 300)
                 previous = None
                 events = []
+                preview_frames = []
                 frame_no = 0
                 sampled = 0
 
@@ -82,9 +84,26 @@ if video:
                                 "Time (seconds)": round(
                                     current / fps, 2
                                 ),
-                                "Visual change (%)": round(motion, 1),
+                                "Visual change (%)": round(
+                                    motion, 1
+                                ),
                                 "Status": "Review footage"
                             })
+
+                            if len(preview_frames) < 8:
+                                preview = cv2.resize(
+                                    frame, (480, 270)
+                                )
+                                preview = cv2.cvtColor(
+                                    preview, cv2.COLOR_BGR2RGB
+                                )
+
+                                preview_frames.append({
+                                    "Time (seconds)": round(
+                                        current / fps, 2
+                                    ),
+                                    "Frame": preview
+                                })
 
                     previous = gray
                     sampled += 1
@@ -108,9 +127,22 @@ if video:
                         use_container_width=True,
                         hide_index=True
                     )
+
+                    st.subheader("📸 Flagged Frame Previews")
+                    st.caption(
+                        "Sampled frames near detected visual changes. "
+                        "These are not confirmed accidents."
+                    )
+
+                    for item in preview_frames:
+                        st.markdown(
+                            f"**Timestamp: {item['Time (seconds)']} seconds**"
+                        )
+                        st.image(item["Frame"], width=480)
+
                     st.warning(
-                        "These are motion flags, not confirmed accidents. "
-                        "Review the corresponding video timestamps."
+                        "Motion flags are not confirmed accidents. "
+                        "Review the footage before drawing conclusions."
                     )
                 else:
                     st.info(
@@ -126,3 +158,4 @@ if video:
                 cap.release()
             if path and os.path.exists(path):
                 os.remove(path)
+```
