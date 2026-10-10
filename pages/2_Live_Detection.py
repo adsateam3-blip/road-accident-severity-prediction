@@ -1,4 +1,3 @@
-```python
 import streamlit as st
 import cv2
 import numpy as np
@@ -158,4 +157,3 @@ if video:
                 cap.release()
             if path and os.path.exists(path):
                 os.remove(path)
-```
